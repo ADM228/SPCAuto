@@ -39,12 +39,12 @@ for i in range (dirlevel):
         directory += dirs[dirnum-1] + "/"
 directory += input("Input the beginning of file names: ") + "_"
 paramstr = ""
-#Calculate the number of tracks automatically
-# i = 1
-# while os.path.isfile(directory+str(i)+".wav"):
-#     i+=1
-# print ("Detected", str(i-1), "tracks")
-for i in range (3,4):
+
+i = 1
+while os.path.isfile(directory+str(i)+".wav"):
+    i+=1
+print ("Detected", str(i-1), "tracks")
+for i in range (i):
     zeramount = ""
     sr1, w1 = wav.read(directory + str(i) + ".wav")
     print ("Track", str(i)+":1 loaded successfully!")
