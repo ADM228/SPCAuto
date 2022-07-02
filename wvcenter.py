@@ -22,7 +22,7 @@ def getUnit():
         c = b - 57
         return (440*(2**(c/12)),1)
 
-directory = ""
+directory = "/home/alexmush/Soundtracks/"
 dirlevel = 2
 
 unit, f = getUnit()
