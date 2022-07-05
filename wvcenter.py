@@ -1,3 +1,4 @@
+from click import progressbar
 import numpy as np
 import scipy.io.wavfile as wav
 import os, sys
@@ -22,8 +23,71 @@ def getUnit():
         c = b - 57
         return (440*(2**(c/12)),1)
 
-directory = "/home/alexmush/Soundtracks/"
+def output (number, total, totalSize):
+    columns = os.get_terminal_size().columns
+    spacing = (totalSize-len(str(number)))*" "
+    mainString = (spacing+str(number+1+(total*instance))+"/"+str(total*(totalInstances+1))+" ")
+    pbLength = number*((columns-len(mainString))/total)
+    mainString += int(pbLength)*"█"
+    pbFloat = (pbLength - int(pbLength)) * 8
+    mainString += nonFullSymbols[int(pbFloat)]
+    mainString += "\033[F"
+    mainString += (columns-len(mainString))*" "
+    print (mainString)
+
+
+def centerAvg (wave):
+    w_intermediate = np.empty(0,wave.dtype) 
+    wf = np.empty(wave.shape,wave.dtype)
+    total = int(wave.shape[0]/offset)
+    totalSize = len (str(total*totalInstances)) #here for optimization
+    for i in range(0, total):
+        first_index = i*offset-int(unit/2)
+        first_index = first_index if first_index >= 0 else 0
+        w_intermediate = wave[first_index:i*offset+int(unit/2)]
+        w_im_avg = np.cast[wave.dtype](np.average(w_intermediate))
+
+        #print(w_intermediate[0], end=" ")
+        w_intermediate = wave[first_index:i*offset+int(unit/2)] - w_im_avg
+        wf[i*offset:(i+1)*offset] = w_intermediate[0:offset]
+        #print(w_im_avg, w_intermediate[0])
+        if i % 50:
+            output(i, total, totalSize)
+    return wf
+
+def centerMinMax (wave):
+    w_intermediate = np.empty(0,wave.dtype) 
+    wf = np.empty(wave.shape,wave.dtype)
+    total = int(wave.shape[0]/offset)
+    totalSize = len (str(total*totalInstances)) #here for optimization
+    for i in range(0, total):
+        first_index = i*offset-int(unit/2)
+        first_index = first_index if first_index >= 0 else 0
+        w_intermediate = wave[first_index:i*offset+int(unit/2)]
+        ma = max(w_intermediate)
+        mi = min(w_intermediate)
+        w_im_avg = np.cast[wave.dtype]((ma+mi)/2)
+        #print(w_intermediate[0], end=" ")
+        w_intermediate = wave[first_index:i*offset+int(unit/2)] - w_im_avg
+        wf[i*offset:(i+1)*offset] = w_intermediate[0:offset]
+        #print(w_im_avg, w_intermediate[0])
+        output(i, total, totalSize)
+        if i % 50:
+            output(i, total, totalSize)
+    return wf
+
+def center (wave):
+    if algorithm == 0:
+        wf = centerAvg(wave)
+    else:
+        wf = centerMinMax(wave)
+    return wf
+
+
+nonFullSymbols = [" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
+directory = ""
 dirlevel = 2
+
 
 unit, f = getUnit()
 offset = 4 #samples per try
@@ -61,49 +125,23 @@ if f == 1:
 unit *= 1.2
 
 w1l = (w1[:,0])
-
-w_intermediate = np.empty(0,w1l.dtype) 
-
-w1fl = np.empty(w1l.shape,w1l.dtype)
-
-for i in range(0, int(w1l.shape[0]/offset)):
-    first_index = i*offset-int(unit/2)
-    first_index = first_index if first_index >= 0 else 0
-    w_intermediate = w1l[first_index:i*offset+int(unit/2)]
-    if algorithm == 0:
-        w_im_avg = np.cast[w1l.dtype](np.average(w_intermediate))
-    else: 
-        ma = max(w_intermediate)
-        mi = min(w_intermediate)
-        w_im_avg = np.cast[w1l.dtype]((ma+mi)/2)
-
-    #print(w_intermediate[0], end=" ")
-    w_intermediate = w1l[first_index:i*offset+int(unit/2)] - w_im_avg
-    w1fl[i*offset:(i+1)*offset] = w_intermediate[0:offset]
-    #print(w_im_avg, w_intermediate[0])
-    print ("\033[F"+str(i+1)+"/"+str(w1l.shape[0]/offset))
-
 w1r = (w1[:,1])
 
-w1fr = np.empty(w1r.shape,w1r.dtype)
+instance = 0
+totalInstances = 0
 
-for i in range(0, int(w1r.shape[0]/offset)):
-    first_index = i*offset-int(unit/2)
-    first_index = first_index if first_index >= 0 else 0
-    w_intermediate = w1r[first_index:i*offset+int(unit/2)]
-    if algorithm == 0:
-        w_im_avg = np.cast[w1r.dtype](np.average(w_intermediate))
-    else: 
-        ma = max(w_intermediate)
-        mi = min(w_intermediate)
-        w_im_avg = np.cast[w1r.dtype]((ma+mi)/2)
+stereo = (w1l - w1r).any()
 
-    #print(w_intermediate[0], end=" ")
-    w_intermediate = w1r[first_index:i*offset+int(unit/2)] - w_im_avg
-    w1fr[i*offset:(i+1)*offset] = w_intermediate[0:offset]
-    #print(w_im_avg, w_intermediate[0])
-    print ("\033[F"+str(i+1)+"/"+str(w1r.shape[0]/offset))
+if not stereo:
+    w1fl = center(w1l)
+    w1fr = w1fl
+else:
+    totalInstances = 1
+    w1fl = center(w1l)
+    instance = 1
+    w1fr = center(w1r)
 
+print ("\n \n")
 w1f = np.empty(w1.shape,w1.dtype)
 
 w1f[:,0] = w1fl
