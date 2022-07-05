@@ -25,9 +25,9 @@ def getUnit():
 
 def output (number, total, totalSize):
     columns = os.get_terminal_size().columns
-    spacing = (totalSize-len(str(number)))*" "
+    spacing = (totalSize-len(str(number+1+(total*instance))))*" "
     mainString = (spacing+str(number+1+(total*instance))+"/"+str(total*(totalInstances+1))+" ")
-    pbLength = number*((columns-len(mainString))/(total*(totalInstances+1)))
+    pbLength = (number+total*instance)*((columns-len(mainString))/(total*(totalInstances+1)))
     mainString += int(pbLength)*"█"
     pbFloat = (pbLength - int(pbLength)) * 8
     mainString += nonFullSymbols[int(pbFloat)]
