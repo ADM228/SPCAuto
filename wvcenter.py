@@ -27,7 +27,7 @@ def output (number, total, totalSize):
     columns = os.get_terminal_size().columns
     spacing = (totalSize-len(str(number)))*" "
     mainString = (spacing+str(number+1+(total*instance))+"/"+str(total*(totalInstances+1))+" ")
-    pbLength = number*((columns-len(mainString))/total)
+    pbLength = number*((columns-len(mainString))/(total*(totalInstances+1)))
     mainString += int(pbLength)*"█"
     pbFloat = (pbLength - int(pbLength)) * 8
     mainString += nonFullSymbols[int(pbFloat)]
@@ -40,7 +40,7 @@ def centerAvg (wave):
     w_intermediate = np.empty(0,wave.dtype) 
     wf = np.empty(wave.shape,wave.dtype)
     total = int(wave.shape[0]/offset)
-    totalSize = len (str(total*totalInstances)) #here for optimization
+    totalSize = len (str(total*(totalInstances+1))) #here for optimization
     for i in range(0, total):
         first_index = i*offset-int(unit/2)
         first_index = first_index if first_index >= 0 else 0
@@ -59,7 +59,7 @@ def centerMinMax (wave):
     w_intermediate = np.empty(0,wave.dtype) 
     wf = np.empty(wave.shape,wave.dtype)
     total = int(wave.shape[0]/offset)
-    totalSize = len (str(total*totalInstances)) #here for optimization
+    totalSize = len (str(total*(totalInstances+1))) #here for optimization
     for i in range(0, total):
         first_index = i*offset-int(unit/2)
         first_index = first_index if first_index >= 0 else 0
