@@ -105,9 +105,9 @@ for i in nrange:
         stereo = ((w1[:,1]) - (w1[:,0])).any()
         print("Track "+str(i)+" is "+("stereo!" if stereo else "mono!"))
     if echosep:
-        wav.write(directory + str(i) + "2.wav", sr2, w2)
+        wav.write(directory + str(i) + ".wav", sr2, w2)
         if echo:
-            wav.write(directory + str(i) + "2e.wav", sr2, w3)
+            wav.write(directory + str(i) + "e.wav", sr2, w3)
         else:
             os.remove(directory + str(i) + "e.wav")
     else:
