@@ -1,4 +1,3 @@
-from click import progressbar
 import numpy as np
 import scipy.io.wavfile as wav
 import os, sys
