@@ -98,7 +98,7 @@ for i in nrange:
             w1 = np.vstack((w1,zer))
         w3 = w1 - w2
         echo = w3.any()
-        print ("Echo of", i, "calculated successfully, it "+("has" if echo else "doesn't have")+" echo!")
+        print ("Echo of track ", i, "calculated successfully, it "+("has" if echo else "doesn't have")+" echo!")
     else:
         echo = False
     if echo:
@@ -110,13 +110,13 @@ for i in nrange:
         stereo = ((w1[:,1]) - (w1[:,0])).any()
         print("Track "+str(i)+" is "+("stereo!" if stereo else "mono!"))
     if echosep:
-        wav.write(directory + str(i) + ".wav", sr2, w2)
+        wav.write(directory + str(i) + ".wav", sr2, w2.astype(d1))
         if echo:
-            wav.write(directory + str(i) + "e.wav", sr2, w3)
+            wav.write(directory + str(i) + "e.wav", sr2, w3.astype(d1))
         else:
             os.remove(directory + str(i) + "e.wav")
     else:
-        wav.write(directory + str(i) + ".wav", sr1, w1)
+        wav.write(directory + str(i) + ".wav", sr1, w1.astype(d1))
     print("Files #"+str(i), "written sucessfully!")
     if echodet:
         paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   ")+("" if not echodet else "E" if echo else "-")+(" " if not echo else "Stereo; " if estereo else "Mono;   "))

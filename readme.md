@@ -13,6 +13,11 @@
 <ul>File [base]\_[tracknumber]<bold>e</bold>.wav which contains only the echo if you choose to do so</ul>
 <ul>General statistics in the terminal in format [tracknumber]: ['Stereo' if the sound is stereo, or 'Mono  ' if it is mono]; [E if echo is non-zero (aka echo has been enabled at least once in the song), or - if it is not]; ['Stereo' if the echo is stereo, or 'Mono  ' if it is mono]; Amp: [maximum possible amplification for this track], ["EchoAmp: " and maximum possible echo amplification if echo exists]</ul>
 </list>
+<h3>GetAudioAuto shell script</h3>
+<p>Uses spccmd.exe to get to SPCPlay to automatically fetch audio from it.</p>
+<p>Before using make sure to set BASEFOLDER to the base directory where the spc action is happening, SPCCMD_EXE to the location of spccmd.exe that comes along with SPCPlay, and SPCAUTO to the location of main.py of this suite</p>
+<p>Usage: bash getaudioauto.sh [path to SPC file without .spc relative to BASEFOLDER]</p>
+<p>It will automatically get audio from channels, you only need to enable and disable echo manually through the SPCPlay GUI.</p>
 <h3>How to use wvcenter:</h3>
 <s><list>
 <ul>Render the .wav file (which has the wave off-center, for example gbsplay's output of the wave channel)</ul>
