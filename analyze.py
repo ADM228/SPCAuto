@@ -39,7 +39,7 @@ for i in range (dirlevel):
         sys.exit("Cancelled")
     else:
         directory += dirs[dirnum-1] + "/"
-directory += input("Input the beginning of file names: ") + "_"
+directory += input("Input the prefix of file names (before track number): ")
 paramstr = ""
 
 i = 1
@@ -117,7 +117,7 @@ for i in nrange:
             os.remove(directory + str(i) + "e.wav")
     else:
         wav.write(directory + str(i) + ".wav", sr1, w1.astype(d1))
-    print("Files #"+str(i), "written sucessfully!")
+    print("Track #"+str(i), "'s files written sucessfully!")
     if echodet:
         paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   ")+("" if not echodet else "E" if echo else "-")+(" " if not echo else "Stereo; " if estereo else "Mono;   "))
     else:

@@ -2,7 +2,7 @@
 
 BASEFOLDER=
 SPCCMD_EXE=
-SPCAUTO=
+ANALYZER=
 
 echo -e "Automation of getting SNES audio via spccmd.exe\nVersion 1.0\nScript made by alexmush, 2023\n\n"
 echo -e "You asked for $1"
@@ -85,5 +85,5 @@ do
         echo -n "${i} "
     fi
 done
-echo -e "Done!\nLaunching SPCAuto..."
-python3 $SPCAUTO <(echo -e -n "y\ny\nn\n") 
+echo -e "Done!\nLaunching analyze.py..."
+python3 $ANALYZER <(echo -e -n "y\ny\nn\n") 
