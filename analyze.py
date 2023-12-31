@@ -2,49 +2,81 @@ import numpy as np
 import scipy.io.wavfile as wav
 import os, sys, time
 
-directory = ""
-dirlevel = 2
+directory = "/"
 unit = 100 #ms
+ 
+def is_valid_argument(arg):
+    return ((arg in sys.argv) and (sys.argv.index(arg) < len(sys.argv)-1) and (sys.argv[sys.argv.index(arg)+1][0] != "-"))
 
-echodet = input ("Detect echo? [Y/N]: ")
-echodet = True if echodet == "y" or echodet == "Y" else False
+def get_argument(arg):
+    return sys.argv[sys.argv.index(arg)+1]
 
-echosep = False
-if echodet:
-    echosep = input ("Separate the echo? [Y/N]: ")
-    echosep = True if echosep == "y" or echosep == "Y" else False
+if not (("--echodet" in sys.argv) or ("--echosep" in sys.argv) or ("-ed" in sys.argv) or ("-es" in sys.argv) or ("--no-echo" in sys.argv) or ("-ne" in sys.argv)): 
+    echodet = input ("Detect echo? [Y/N]: ")
+    echodet = True if echodet == "y" or echodet == "Y" else False
+
+    echosep = False
+    if echodet:
+        echosep = input ("Separate the echo? [Y/N]: ")
+        echosep = True if echosep == "y" or echosep == "Y" else False
+elif (("--echodet" in sys.argv) or ("--echosep" in sys.argv) or ("-ed" in sys.argv) or ("-es" in sys.argv)) and (("--no-echo" in sys.argv) or ("-ne" in sys.argv)):
+    pro_echo = [i for i in sys.argv if ((i == "--echodet") or (i == "--echosep") or (i == "-ed") or (i == "-es"))]
+    anti_echo = [i for i in sys.argv if ((i == "--no-echo") or (i == "-ne"))]
+    sys.exit(f"Invalid arguments: " + (", ".join(pro_echo))+ " " + ("are" if len(pro_echo) > 1 else "is") + " incompatible with " + ", ".join(anti_echo))
+else:
+    echodet = (("--echodet" in sys.argv) or ("--echosep" in sys.argv) or ("-ed" in sys.argv) or ("-es" in sys.argv)) # echodet is implied when echosep
+    echosep = (("--echosep" in sys.argv) or ("-es" in sys.argv))
+
+if not (("--no-pad" in sys.argv) or ("-np" in sys.argv) or ("--pad" in sys.argv) or ("-p" in sys.argv)):
+    pad = input ("Pad the tracks? [Y/N]: ")
+    pad = True if pad == "y" or pad == "Y" else False
+else:
+    pad = ("--pad" in sys.argv) or ("-p" in sys.argv)
+
+if not (("--compact-output" in sys.argv) or ("-co" in sys.argv) or ("--verbose-output" in sys.argv) or ("-vo" in sys.argv)):
+    outlevel = 0
+elif (("--compact-output" in sys.argv) or ("-co" in sys.argv)) and (("--verbose-output" in sys.argv) or ("-vo" in sys.argv)):
+    compact = [i for i in sys.argv if i in ["--compact-output", "-co"]]
+    verbose = [i for i in sys.argv if i in ["--verbose-output", "-vo"]]    
+    sys.exit(f"Invalid arguments: " + (", ".join(compact))+ " " + ("are" if len(compact) > 1 else "is") + " incompatible with " + ", ".join(verbose))
+else:
+    outlevel = 1 if (("--compact-output" in sys.argv) or ("-co" in sys.argv)) else 2
 
 
-pad = input ("Pad the tracks? [Y/N]: ")
-pad = True if pad == "y" or pad == "Y" else False
+if not is_valid_argument("-i"):
+    while True:
+        i = 0
+        dirs = ["..", "."]
+        for entry in os.scandir(directory):
+            if entry.is_dir():
+                i+=1
+                dirs.append(entry.name)
+        print("Input the number to select the directory (0 to cancel, 1 to go back, 2 to pick this directory):")
+        for i in range(len(dirs)):
+            print("("+str(i+1)+") "+dirs[i])
 
+        dirnum = -1
+        while (dirnum < 0 or dirnum > len(dirs)):
+            dirnum = int(input ("The number (0-"+str(len(dirs))+"): "))
 
-
-for i in range (dirlevel):
-    i = 0
-    dirs = []
-    for entry in os.scandir(directory):
-        if entry.is_dir():
-            i+=1
-            dirs.append(entry.name)
-    if len(dirs) == 1:
-        directory += dirs[0] + "/"
-        print("Found only one directory, progressing automatically")
-        continue
-    print("Input the number to select the directory (0 to cancel):")
-    for i in range(len(dirs)):
-        print("("+str(i+1)+") "+dirs[i])
-    dirnum = int(input ("The number (0-"+str(len(dirs))+"): "))
-    if dirnum == 0:
-        sys.exit("Cancelled")
-    else:
-        directory += dirs[dirnum-1] + "/"
-directory += input("Input the prefix of file names (before track number): ")
+        if dirnum == 0:
+            sys.exit("Cancelled")
+        elif dirnum == 1:
+            directory = "/"+"/".join(directory.split("/")[:-2])
+        elif dirnum == 2:
+            break
+        else:
+            directory += dirs[dirnum-1] + "/"
+    directory += input("Input the prefix of file names (before track number): ")
+else:
+    directory = get_argument("-i")
 paramstr = ""
 
 i = 1
 while os.path.isfile(directory+str(i)+".wav"):
     i+=1
+if (i == 1):
+    sys.exit("Detected 0 tracks, exiting")
 print ("Detected", str(i-1), "tracks")
 
 index = input ("Select a specific track? [Y/N]: ")
@@ -117,17 +149,30 @@ for i in nrange:
             os.remove(directory + str(i) + "e.wav")
     else:
         wav.write(directory + str(i) + ".wav", sr1, w1.astype(d1))
-    print("Track #"+str(i), "'s files written sucessfully!")
-    if echodet:
-        paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   ")+("" if not echodet else "E" if echo else "-")+(" " if not echo else "Stereo; " if estereo else "Mono;   "))
-    else:
-        paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   "))
-    if echosep:
-        paramstr +="Main Amp: "+(str(min(max1/np.amax(w2), min1/np.amin(w2))))+"; Echo Amp: "+(str(min(max1/np.amax(w3), min1/np.amin(w3)) if echo else "")+" ")
-    else:
-        paramstr +="Amp: " + (str(min(max1/np.amax(w1), min1/np.amin(w1))))
+    print("Track "+str(i) + "'s files written sucessfully!")
+    if outlevel == 2:
+        if echodet:
+            paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   ")+("" if not echodet else "E" if echo else "-")+(" " if not echo else "Stereo; " if estereo else "Mono;   "))
+        else:
+            paramstr +=(str(i)+": "+("Stereo; " if stereo else "Mono;   "))
+        if echosep:
+            paramstr +="Main Amp: "+(str(min(max1/np.amax(w2), min1/np.amin(w2))))+"; Echo Amp: "+(str(min(max1/np.amax(w3), min1/np.amin(w3)) if echo else "")+" ")
+        else:
+            paramstr +="Amp: " + (str(min(max1/np.amax(w1), min1/np.amin(w1))))
+    elif outlevel == 1:
+        if echodet:
+            paramstr +=(str(i)+": "+("S; " if stereo else "M; ")+("" if not echodet else "E" if echo else "-")+(" " if not echo else "S; " if estereo else "M; "))
+        else:
+            paramstr +=(str(i)+": "+("S; " if stereo else "M; "))
+        if echosep:
+            paramstr +=(str(min(max1/np.amax(w2), min1/np.amin(w2))))+"; "+(str(min(max1/np.amax(w3), min1/np.amin(w3)) if echo else "")+" ")
+        else:
+            paramstr +=(str(min(max1/np.amax(w1), min1/np.amin(w1))))
 #    if stereo:
 #        paramstr +=(str(np.amax((w2[:,1])-(w2[:,0]
 # Stereo difference, pointless
     paramstr += "\n"
-print(paramstr)
+if outlevel >= 0:
+    print(paramstr)
+
+
