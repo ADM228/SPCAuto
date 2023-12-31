@@ -101,7 +101,7 @@ for i in nrange:
         max1 = np.finfo(d1).max
         min1 = np.finfo(d1).min
     else:
-        print ("I don't know what a '"+str(d1)+"' is, please report to alexmush#7063 on Discord")
+        print ("I don't know what a '"+str(d1)+"' is, please report to @alexmush on Discord")
     
     print ("Track", str(i)+":1 loaded successfully!")
     if echodet:
