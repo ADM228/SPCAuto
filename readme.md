@@ -7,7 +7,7 @@ These scripts are to be either self-run (`./autoaudio_XXX.sh`) or run with `bash
 
 ## SPC
 
-autoaudio_spc.sh gets audio from SPCPlay via spc_cmd.exe, an official CLI for SPCPlay bundled with it. It has the ability to get audio with and without the echo, albeit that requires human interaction. It automatically exports audio into the format analyze.py accepts and sends the audio to it afterwards.
+autoaudio_spc.sh gets audio from [SPCPlay](https://github.com/dgrfactory/spcplay) via spc_cmd.exe, an official CLI for SPCPlay bundled with it. It has the ability to get audio with and without the echo, albeit that requires human interaction. It automatically exports audio into the format analyze.py accepts and sends the audio to it afterwards.
 
 ### Usage
 
@@ -25,11 +25,11 @@ Possible expansion arguments: `--fds`, `--mmc5` ,`--s5b`, `--vrc6`, `--vrc7`, `-
 
 ## GBS
 
-autoaudio_gbs.sh gets audio from gbsplay and converts it to wav files using ffmpeg. It just uses the standard version of gbsplay. It features a listening mode that straight up launches gbsplay with the specified GBS file. It also features a directory explorer to find GBS files easily.
+autoaudio_gbs.sh gets audio from [gbsplay](https://github.com/mmitch/gbsplay) and converts it to wav files using ffmpeg. It just uses the standard version of gbsplay. It features a listening mode that straight up launches gbsplay with the specified GBS file. It also features a directory explorer to find GBS files easily.
 
 ### Usage
 
-`autoaudio_gbs.sh <GBS filename, or directory of GBS files, relative to $BASEFOLDER> [<Track Number, starting with 1>] [<Audio length, will use a default if not specified>]`  
+`autoaudio_gbs.sh <GBS filename, or directory of GBS files, relative to $BASEFOLDER> [<Track Number, starting with 1>] [<Audio length, will use a default if not specified>] [<Channel mask for a single file with only some channels>]`  
 If no track number is specified, this script will be put into listening mode.
 
 ## Planned Features
